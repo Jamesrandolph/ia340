@@ -1,0 +1,288 @@
++*In[1]:*+
+[source, ipython3]
+----
+!pip install pymongo
+----
+
+
++*Out[1]:*+
+----
+Collecting pymongo
+  Downloading pymongo-3.12.1-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (506 kB)
+[K     |████████████████████████████████| 506 kB 36.5 MB/s eta 0:00:01
+[?25hInstalling collected packages: pymongo
+Successfully installed pymongo-3.12.1
+[33mWARNING: You are using pip version 21.2.4; however, version 21.3.1 is available.
+You should consider upgrading via the '/home/ec2-user/anaconda3/envs/python3/bin/python -m pip install --upgrade pip' command.[0m
+----
+
+
++*In[2]:*+
+[source, ipython3]
+----
+!pip install pymongo[srv]
+----
+
+
++*Out[2]:*+
+----
+Requirement already satisfied: pymongo[srv] in /home/ec2-user/anaconda3/envs/python3/lib/python3.6/site-packages (3.12.1)
+Collecting dnspython<3.0.0,>=1.16.0
+  Downloading dnspython-2.1.0-py3-none-any.whl (241 kB)
+[K     |████████████████████████████████| 241 kB 34.5 MB/s eta 0:00:01
+[?25hInstalling collected packages: dnspython
+Successfully installed dnspython-2.1.0
+[33mWARNING: You are using pip version 21.2.4; however, version 21.3.1 is available.
+You should consider upgrading via the '/home/ec2-user/anaconda3/envs/python3/bin/python -m pip install --upgrade pip' command.[0m
+----
+
+
++*In[3]:*+
+[source, ipython3]
+----
+!pip install dnspython
+----
+
+
++*Out[3]:*+
+----
+Requirement already satisfied: dnspython in /home/ec2-user/anaconda3/envs/python3/lib/python3.6/site-packages (2.1.0)
+[33mWARNING: You are using pip version 21.2.4; however, version 21.3.1 is available.
+You should consider upgrading via the '/home/ec2-user/anaconda3/envs/python3/bin/python -m pip install --upgrade pip' command.[0m
+----
+
+
++*In[4]:*+
+[source, ipython3]
+----
+!pip install tweepy
+----
+
+
++*Out[4]:*+
+----
+Collecting tweepy
+  Downloading tweepy-4.2.0-py2.py3-none-any.whl (63 kB)
+[K     |████████████████████████████████| 63 kB 2.0 MB/s  eta 0:00:01
+[?25hCollecting requests-oauthlib<2,>=1.0.0
+  Downloading requests_oauthlib-1.3.0-py2.py3-none-any.whl (23 kB)
+Requirement already satisfied: requests<3,>=2.11.1 in /home/ec2-user/anaconda3/envs/python3/lib/python3.6/site-packages (from tweepy) (2.26.0)
+Requirement already satisfied: charset-normalizer~=2.0.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.6/site-packages (from requests<3,>=2.11.1->tweepy) (2.0.7)
+Requirement already satisfied: urllib3<1.27,>=1.21.1 in /home/ec2-user/anaconda3/envs/python3/lib/python3.6/site-packages (from requests<3,>=2.11.1->tweepy) (1.26.7)
+Requirement already satisfied: certifi>=2017.4.17 in /home/ec2-user/anaconda3/envs/python3/lib/python3.6/site-packages (from requests<3,>=2.11.1->tweepy) (2021.10.8)
+Requirement already satisfied: idna<4,>=2.5 in /home/ec2-user/anaconda3/envs/python3/lib/python3.6/site-packages (from requests<3,>=2.11.1->tweepy) (3.3)
+Collecting oauthlib>=3.0.0
+  Downloading oauthlib-3.1.1-py2.py3-none-any.whl (146 kB)
+[K     |████████████████████████████████| 146 kB 58.8 MB/s eta 0:00:01
+[?25hInstalling collected packages: oauthlib, requests-oauthlib, tweepy
+Successfully installed oauthlib-3.1.1 requests-oauthlib-1.3.0 tweepy-4.2.0
+[33mWARNING: You are using pip version 21.2.4; however, version 21.3.1 is available.
+You should consider upgrading via the '/home/ec2-user/anaconda3/envs/python3/bin/python -m pip install --upgrade pip' command.[0m
+----
+
+
++*In[5]:*+
+[source, ipython3]
+----
+!pip install twitter
+----
+
+
++*Out[5]:*+
+----
+Collecting twitter
+  Downloading twitter-1.19.3-py2.py3-none-any.whl (50 kB)
+[K     |████████████████████████████████| 50 kB 1.3 MB/s  eta 0:00:01
+[?25hInstalling collected packages: twitter
+Successfully installed twitter-1.19.3
+[33mWARNING: You are using pip version 21.2.4; however, version 21.3.1 is available.
+You should consider upgrading via the '/home/ec2-user/anaconda3/envs/python3/bin/python -m pip install --upgrade pip' command.[0m
+----
+
+
++*In[6]:*+
+[source, ipython3]
+----
+import pymongo
+from pymongo import MongoClient
+import json
+import tweepy
+import twitter
+from pprint import pprint
+import configparser
+import pandas as pd
+----
+
+
++*In[15]:*+
+[source, ipython3]
+----
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+CONSUMER_KEY      = config['mytwitter']['api_key']
+CONSUMER_SECRET   = config['mytwitter']['api_secrete']
+OAUTH_TOKEN       = config['mytwitter']['access_token']
+OATH_TOKEN_SECRET = config['mytwitter']['access_secrete']
+
+mongod_connect = config['mymongo']['connection'] 
+----
+
+
++*In[20]:*+
+[source, ipython3]
+----
+client = MongoClient(mongod_connect)
+db = client.demo # use or create a database named demo
+tweet_collection = db.tweet_collection #use or create a collection named tweet_collection
+tweet_collection.create_index([("id", pymongo.ASCENDING)],unique = True) # make sure the collected tweets are unique
+----
+
+
++*Out[20]:*+
+----'id_1'----
+
+
++*In[25]:*+
+[source, ipython3]
+----
+rest_auth = twitter.oauth.OAuth(OAUTH_TOKEN,OATH_TOKEN_SECRET,CONSUMER_KEY,CONSUMER_SECRET)
+rest_api = twitter.Twitter(auth=rest_auth)
+----
+
+
++*In[26]:*+
+[source, ipython3]
+----
+count = 100 #number of returned tweets, default and max is 100
+geocode = "38.4392897,-78.9412224,50mi"  # defin the location, in Harrisonburg, VA
+q = "election"   
+----
+
+
++*In[27]:*+
+[source, ipython3]
+----
+search_results = rest_api.search.tweets( count=count,q=q, geocode=geocode) #you can use both q and geocode
+statuses = search_results["statuses"]
+since_id_new = statuses[-1]['id']
+for statuse in statuses:
+    try:
+        tweet_collection.insert_one(statuse)
+        pprint(statuse['created_at'])# print the date of the collected tweets
+    except:
+        pass
+
+----
+
+
++*Out[27]:*+
+----
+'Mon Nov 01 21:00:59 +0000 2021'
+'Mon Nov 01 20:53:30 +0000 2021'
+'Mon Nov 01 20:53:02 +0000 2021'
+'Mon Nov 01 20:52:26 +0000 2021'
+'Mon Nov 01 20:37:07 +0000 2021'
+'Mon Nov 01 20:22:42 +0000 2021'
+'Mon Nov 01 20:05:11 +0000 2021'
+'Mon Nov 01 19:25:39 +0000 2021'
+'Mon Nov 01 19:13:57 +0000 2021'
+'Mon Nov 01 19:08:46 +0000 2021'
+'Mon Nov 01 19:07:19 +0000 2021'
+'Mon Nov 01 19:00:47 +0000 2021'
+'Mon Nov 01 18:49:22 +0000 2021'
+'Mon Nov 01 18:33:51 +0000 2021'
+'Mon Nov 01 18:30:09 +0000 2021'
+'Mon Nov 01 18:17:19 +0000 2021'
+'Mon Nov 01 18:08:49 +0000 2021'
+'Mon Nov 01 18:02:33 +0000 2021'
+'Mon Nov 01 18:00:10 +0000 2021'
+'Mon Nov 01 17:59:53 +0000 2021'
+'Mon Nov 01 17:57:53 +0000 2021'
+'Mon Nov 01 17:27:06 +0000 2021'
+'Mon Nov 01 17:18:56 +0000 2021'
+'Mon Nov 01 17:12:46 +0000 2021'
+'Mon Nov 01 17:07:01 +0000 2021'
+'Mon Nov 01 16:57:09 +0000 2021'
+'Mon Nov 01 16:48:57 +0000 2021'
+'Mon Nov 01 16:45:07 +0000 2021'
+'Mon Nov 01 16:42:37 +0000 2021'
+'Mon Nov 01 16:40:18 +0000 2021'
+'Mon Nov 01 16:29:51 +0000 2021'
+'Mon Nov 01 16:29:08 +0000 2021'
+'Mon Nov 01 16:28:58 +0000 2021'
+'Mon Nov 01 16:05:00 +0000 2021'
+'Mon Nov 01 16:02:05 +0000 2021'
+'Mon Nov 01 15:38:09 +0000 2021'
+'Mon Nov 01 15:35:33 +0000 2021'
+'Mon Nov 01 15:12:24 +0000 2021'
+'Mon Nov 01 15:04:06 +0000 2021'
+'Mon Nov 01 14:59:37 +0000 2021'
+'Mon Nov 01 14:32:26 +0000 2021'
+'Mon Nov 01 14:30:26 +0000 2021'
+'Mon Nov 01 13:51:08 +0000 2021'
+'Mon Nov 01 13:47:27 +0000 2021'
+'Mon Nov 01 13:38:55 +0000 2021'
+'Mon Nov 01 13:36:56 +0000 2021'
+'Mon Nov 01 13:13:38 +0000 2021'
+'Mon Nov 01 13:09:25 +0000 2021'
+'Mon Nov 01 13:03:43 +0000 2021'
+'Mon Nov 01 12:56:32 +0000 2021'
+'Mon Nov 01 12:55:41 +0000 2021'
+'Mon Nov 01 12:47:27 +0000 2021'
+'Mon Nov 01 12:47:25 +0000 2021'
+'Mon Nov 01 12:43:24 +0000 2021'
+'Mon Nov 01 12:42:01 +0000 2021'
+'Mon Nov 01 12:41:47 +0000 2021'
+'Mon Nov 01 12:29:40 +0000 2021'
+'Mon Nov 01 12:28:45 +0000 2021'
+'Mon Nov 01 12:18:11 +0000 2021'
+'Mon Nov 01 12:12:53 +0000 2021'
+'Mon Nov 01 12:04:15 +0000 2021'
+'Mon Nov 01 12:02:05 +0000 2021'
+'Mon Nov 01 10:00:31 +0000 2021'
+'Mon Nov 01 06:55:33 +0000 2021'
+'Mon Nov 01 02:52:58 +0000 2021'
+'Mon Nov 01 02:52:55 +0000 2021'
+'Mon Nov 01 02:52:41 +0000 2021'
+'Mon Nov 01 02:52:40 +0000 2021'
+'Mon Nov 01 02:40:00 +0000 2021'
+'Mon Nov 01 01:19:06 +0000 2021'
+'Mon Nov 01 00:48:40 +0000 2021'
+'Mon Nov 01 00:31:28 +0000 2021'
+'Sun Oct 31 23:42:36 +0000 2021'
+'Sun Oct 31 23:41:28 +0000 2021'
+'Sun Oct 31 23:36:00 +0000 2021'
+'Sun Oct 31 23:34:29 +0000 2021'
+'Sun Oct 31 23:24:49 +0000 2021'
+'Sun Oct 31 23:23:36 +0000 2021'
+'Sun Oct 31 23:22:06 +0000 2021'
+'Sun Oct 31 22:47:38 +0000 2021'
+'Sun Oct 31 21:56:21 +0000 2021'
+'Sun Oct 31 21:45:29 +0000 2021'
+'Sun Oct 31 21:36:54 +0000 2021'
+'Sun Oct 31 21:33:15 +0000 2021'
+'Sun Oct 31 20:21:24 +0000 2021'
+'Sun Oct 31 20:06:35 +0000 2021'
+'Sun Oct 31 19:13:01 +0000 2021'
+'Sun Oct 31 19:05:07 +0000 2021'
+'Sun Oct 31 18:53:15 +0000 2021'
+'Sun Oct 31 18:43:43 +0000 2021'
+'Sun Oct 31 18:41:39 +0000 2021'
+'Sun Oct 31 18:16:00 +0000 2021'
+'Sun Oct 31 17:57:46 +0000 2021'
+'Sun Oct 31 17:24:00 +0000 2021'
+'Sun Oct 31 17:11:33 +0000 2021'
+'Sun Oct 31 17:08:45 +0000 2021'
+'Sun Oct 31 16:36:12 +0000 2021'
+'Sun Oct 31 16:21:43 +0000 2021'
+'Sun Oct 31 16:20:05 +0000 2021'
+'Sun Oct 31 16:07:03 +0000 2021'
+----
+
+
++*In[ ]:*+
+[source, ipython3]
+----
+
+----
